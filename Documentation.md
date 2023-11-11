@@ -1,6 +1,5 @@
 
 # PotentiometerRead Library Documentation
-
 ## Overview
 The PotentiometerRead library provides an interface for reading values from a ```potentiometer``` connected to an Arduino board.
 ## Class Definition
