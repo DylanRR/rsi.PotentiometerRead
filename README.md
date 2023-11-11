@@ -1,6 +1,6 @@
 
 # Potentiometer Library
-<a href="https://github.com/DylanRR/rsi.PotentiometerRead/wiki/PotentiometerRead-Library-Documentation">
+<a href="https://github.com/DylanRR/rsi.PotentiometerRead/wiki/PotentiometerRead-Library-Documentation" target="_blank">
     <img alt="Static Badge" src="https://img.shields.io/badge/Documentation-Visit-<COLOR>">
 </a>
 
