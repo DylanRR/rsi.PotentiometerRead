@@ -59,7 +59,7 @@ test(potentiometer_read) {
 
 void setup() {
   Serial.begin(9600);
-  while (!Serial) {} // for Leonardo/Micro/Zero
+  while (!Serial) {} // Waits for a serial connection (for Leonardo/Micro/Zero)
 }
 
 void loop() {
