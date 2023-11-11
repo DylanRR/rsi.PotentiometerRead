@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PotentiometerRead Library Documentation</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<li><a href="#overview">Overview</a></li>
+<li><a href="#class-definition">Class Definition</a></li>
+<li><a href="#public-methods">Public Methods</a></li>
+<li><a href="#private-methods">Private Methods</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <h1 id="potentiometerread-library-documentation">PotentiometerRead Library Documentation</h1>
+<h2 id="overview">Overview</h2>
+<p>The PotentiometerRead library provides an interface for reading values from a <code>potentiometer</code> connected to an Arduino board.</p>
+<h2 id="class-definition">Class Definition</h2>
+<pre><code>class PotentiometerRead {
+public:
+    PotentiometerRead(unsigned int pin, const char* name, unsigned int minVal = 0, unsigned int maxVal = 1023, unsigned long debounceDelayVal = 10, bool reverseDirection = false);
+    int readValue();
+    void setMinValue(unsigned int minVal);
+    unsigned int getMinValue();
+    void setMaxValue(unsigned int maxVal);
+    unsigned int getMaxValue();
+    void setDebounceDelay(unsigned long debounceDelayVal);
+    unsigned long getDebounceDelay();
+
+private:
+    unsigned int Pin;
+    const char* Name;
+    unsigned int pMin;
+    unsigned int pMax;
+    unsigned long debounceDelay;
+    bool reverseP_Direction;
+    unsigned long lastChangeTime = 0; // Initialize to 0
+    unsigned int lastReading = 0; // Initialize to 0
+    void updateReading();
+};
+</code></pre>
+<h2 id="public-methods">Public Methods</h2>
+<h3 id="constructor">Constructor</h3>
+<pre><code>PotentiometerRead(unsigned int pin, const char* name, unsigned int minVal = 0, unsigned int maxVal = 1023, unsigned long debounceDelayVal = 10, bool reverseDirection = false);
+</code></pre>
+<p>Initializes a new instance of the <code>PotentiometerRead</code> class. The <code>pin</code> parameter specifies the Arduino pin that the potentiometer is connected to. The <code>name</code> parameter is a string that identifies the potentiometer. The <code>minVal</code> and <code>maxVal</code> parameters define the range of values that the potentiometer can output. The <code>debounceDelayVal</code> parameter is used to eliminate noise in the potentiometer reading. If <code>reverseDirection</code> is set to <code>true</code>, the direction of the potentiometer’s output will be reversed.</p>
+<h3 id="readvalue">readValue</h3>
+<pre><code>int readValue();
+</code></pre>
+<p>Returns the current reading from the potentiometer.</p>
+<h3 id="setminvalue">setMinValue</h3>
+<pre><code>void setMinValue(unsigned int minVal);
+</code></pre>
+<p>Sets the minimum value that the potentiometer can output. Throws an <code>std::invalid_argument</code> exception if minVal is greater than the current maximum value.</p>
+<h3 id="getminvalue">getMinValue</h3>
+<pre><code>unsigned int getMinValue();
+</code></pre>
+<p>Returns the minimum value that the potentiometer can output.</p>
+<h3 id="setmaxvalue">setMaxValue</h3>
+<pre><code>void setMaxValue(unsigned int maxVal);
+</code></pre>
+<p>Sets the maximum value that the potentiometer can output. Throws an <code>std::invalid_argument</code> exception if <code>maxVal</code> is less than the current minimum value.</p>
+<h3 id="getmaxvalue">getMaxValue</h3>
+<pre><code>unsigned int getMaxValue();
+</code></pre>
+<p>Returns the maximum value that the potentiometer can output.</p>
+<h3 id="setdebouncedelay">setDebounceDelay</h3>
+<pre><code>void setDebounceDelay(unsigned long debounceDelayVal);
+</code></pre>
+<p>Sets the debounce delay value. This is used to eliminate noise in the potentiometer reading.</p>
+<h3 id="getdebouncedelay">getDebounceDelay</h3>
+<pre><code>unsigned long getDebounceDelay();
+</code></pre>
+<p>Returns the current debounce delay value.</p>
+<h2 id="private-methods">Private Methods</h2>
+<h3 id="updatereading">updateReading</h3>
+<pre><code>void updateReading();
+</code></pre>
+<p>Updates the current reading from the potentiometer. This method is called internally by the <code>readValue</code> method and levrages <code>debounceDelay</code> to filter out noise.</p>
+
+    </div>
+  </div>
+</body>
+
+</html>
