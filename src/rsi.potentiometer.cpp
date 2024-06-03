@@ -59,6 +59,10 @@ PotentiometerRead::PotentiometerRead(unsigned int pin, unsigned int minValue, un
     this->pin = pin;
     this->minValue = minValue;
     this->maxValue = maxValue;
+    this->minVoltage = 0;
+    this->maxVoltage = 5;
+    this->inputVoltage = 5;
+    _calcVoltageValues();
     this->confidenceLevel = confidenceLevel;
     this->currentReading = 100;
     this->previousReading = -100;
@@ -97,9 +101,7 @@ void PotentiometerRead::reset(){
 void PotentiometerRead::setMinValue(unsigned int minValue) {
   this->minValue = minValue;
   this->previousReading = -100;
-  while(currentReading != previousReading){
-        updateValue();
-    }
+  reset();
 }
 
 /**
@@ -117,9 +119,20 @@ unsigned int PotentiometerRead::getMinValue() {
 void PotentiometerRead::setMaxValue(unsigned int maxValue) {
   this->maxValue = maxValue;
   this->previousReading = -100;
-  while(currentReading != previousReading){
-        updateValue();
-    }
+  reset();
+}
+
+/**
+ * Method to set the voltage range of the potentiometer. And reset the previous reading.
+ * @param minVoltage The minimum voltage
+ * @param maxVoltage The maximum voltage
+ */
+void PotentiometerRead::setVoltageRange(float inputVoltage, float minVoltage, float maxVoltage){
+    this->inputVoltage = inputVoltage;
+    this->minVoltage = minVoltage;
+    this->maxVoltage = maxVoltage;
+    _calcVoltageValues();
+    reset();
 }
 
 /**
@@ -157,6 +170,15 @@ int PotentiometerRead::checkForChange(){
 }
 
 
+/**
+ * Method to calculate the minimum voltage value of the potentiometer.
+ * @return The minimum voltage value
+ */
+void PotentiometerRead::_calcVoltageValues(){
+  this->minVoltageValue = round((this->minVoltage / this->inputVoltage) * 1023);
+  this->maxVoltageValue = round((this->maxVoltage / this->inputVoltage) * 1023);
+}
+
 
 /**
  * Method to update the value of the potentiometer.
@@ -176,9 +198,11 @@ void PotentiometerRead::updateValue(){
         confidence = 0;
         previousReading = currentReading;
         if(reverseDirection){
-            reading = map(currentReading, 0, 1023, maxValue, minValue);
+            reading = map(currentReading, this->minVoltageValue, this->maxVoltageValue, maxValue, minValue);
+            reading = constrain(reading, minValue, maxValue);
         } else {
-            reading = map(currentReading, 0, 1023, minValue, maxValue);
+            reading = map(currentReading, this->minVoltageValue, this->maxVoltageValue, minValue, maxValue);
+            reading = constrain(reading, minValue, maxValue);
         }
     }
 }
