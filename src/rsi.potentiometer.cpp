@@ -66,9 +66,7 @@ PotentiometerRead::PotentiometerRead(unsigned int pin, unsigned int minValue, un
 
     pinMode(this->pin, INPUT);
 
-    while(currentReading != previousReading){
-        updateValue();
-    }
+    reset();
     this->cfc = readValue();
 }
 
@@ -86,9 +84,8 @@ unsigned int PotentiometerRead::readValue(){
 void PotentiometerRead::reset(){
   this->currentReading = 100;
   this->previousReading = -100;
-  while(currentReading != previousReading){
-        updateValue();
-    }
+  while(currentReading != previousReading)
+    updateValue();
 }
 
 /** Method to set the minimum value of the potentiometer. And reset the previous reading.
@@ -97,9 +94,7 @@ void PotentiometerRead::reset(){
 void PotentiometerRead::setMinValue(unsigned int minValue) {
   this->minValue = minValue;
   this->previousReading = -100;
-  while(currentReading != previousReading){
-        updateValue();
-    }
+  reset();
 }
 
 /**
@@ -117,9 +112,7 @@ unsigned int PotentiometerRead::getMinValue() {
 void PotentiometerRead::setMaxValue(unsigned int maxValue) {
   this->maxValue = maxValue;
   this->previousReading = -100;
-  while(currentReading != previousReading){
-        updateValue();
-    }
+  reset();
 }
 
 /**
@@ -135,7 +128,7 @@ unsigned int PotentiometerRead::getMaxValue() {
  * @param confidenceLevel The confidence level
  */
 void PotentiometerRead::setConfidenceLevel(unsigned int confidenceLevel){
-    this->confidenceLevel = confidenceLevel;
+  this->confidenceLevel = confidenceLevel;
 }
 
 /**
@@ -165,20 +158,95 @@ int PotentiometerRead::checkForChange(){
  * If our confidence is greater than our confidence level, it will update our reading.
  */
 void PotentiometerRead::updateValue(){
-    currentReading = analogRead(pin);
-    if(currentReading != previousReading){
-        confidence++;
-    } else {
-        confidence = 0;
-    }
+  currentReading = analogRead(pin);
+  if(currentReading != previousReading)
+    confidence++;
+  else
+    confidence = 0;
 
-    if(confidence >= confidenceLevel){
-        confidence = 0;
-        previousReading = currentReading;
-        if(reverseDirection){
-            reading = map(currentReading, 0, 1023, maxValue, minValue);
-        } else {
-            reading = map(currentReading, 0, 1023, minValue, maxValue);
-        }
+  if(confidence >= confidenceLevel){
+    confidence = 0;
+     previousReading = currentReading;
+    if(reverseDirection)
+      reading = map(currentReading, 0, 1023, maxValue, minValue);
+    else
+      reading = map(currentReading, 0, 1023, minValue, maxValue);
+  }
+}
+
+
+/** Constructor for the HallEffectPotentiometerRead class.
+ * This class extends the PotentiometerRead class, and adds the ability to read a potentiometer with a Hall Effect sensor.
+ * @param pin The pin the potentiometer is connected to
+ * @param minValue The minimum value of the potentiometer. (Default = 0)
+ * @param maxValue The maximum value of the potentiometer. (Default = 1023)
+ * @param confidenceLevel The confidence level of the potentiometer. (Default = 20)
+ * @param directionalDeltaConfidence The confidence level of the potentiometer in a certain direction. (Default = 3)
+ * @param reverseDirection Whether or not the potentiometer is reversed. (Default = false)
+ */
+HallEffectPotentiometerRead::HallEffectPotentiometerRead(unsigned int pin, unsigned int minValue, unsigned int maxValue, unsigned int confidenceLevel, int directionalDeltaConfidence, bool reverseDirection)
+: PotentiometerRead(pin, minValue, maxValue, confidenceLevel, reverseDirection), directionalDeltaConfidence(directionalDeltaConfidence) {
+  this->pin = pin;
+  this->minValue = minValue;
+  this->maxValue = maxValue;
+  this->confidenceLevel = confidenceLevel;
+  this->currentReading = 100;
+  this->previousReading = -100;
+  this->reverseDirection = reverseDirection;
+  this->directionalDeltaConfidence = directionalDeltaConfidence;
+  this->hallDirection = 0;
+  this->hallDirCount = 0;
+  pinMode(this->pin, INPUT);
+  while(currentReading != previousReading){
+    updateValue();
+  }
+  this->cfc = readValue();
+}
+
+/**
+ * @brief to update the value of the potentiometer.
+ * @details This function overrides the updateValue function in the PotentiometerRead class.
+*/
+void HallEffectPotentiometerRead::updateValue() {
+  currentReading = analogRead(pin);
+  if(currentReading != previousReading){
+    confidence++;
+  } else {
+    confidence = 0;
+  }
+  if(confidence >= confidenceLevel){
+    confidence = 0;
+    bool isIncreasing = previousReading < currentReading;
+    if (hallDirection == isIncreasing && hallDirCount >= directionalDeltaConfidence) {
+      if (isIncreasing && reading != maxValue)
+        reading++;
+      else if (!isIncreasing && reading != minValue)
+        reading--;
     }
+    else if (hallDirection == isIncreasing)
+        hallDirCount++;
+    else{ 
+      hallDirection = isIncreasing;
+      hallDirCount = 0;
+    }
+    previousReading = currentReading;
+  }
+}
+
+/**
+ * @brief to set the directional delta confidence level.
+ * @details This function sets the confidence level of the potentiometer in a certain direction.
+ * @param directionalDeltaConfidence The confidence level of the potentiometer in a certain direction.
+*/
+void HallEffectPotentiometerRead::setDirectionalDeltaConfidence(int directionalDeltaConfidence) {
+  this->directionalDeltaConfidence = directionalDeltaConfidence;
+}
+
+/**
+ * @brief to get the directional delta confidence level.
+ * @details This function gets the confidence level of the potentiometer in a certain direction.
+ * @return The confidence level of the potentiometer in a certain direction.
+*/
+int HallEffectPotentiometerRead::getDirectionalDeltaConfidence() {
+  return this->directionalDeltaConfidence;
 }
